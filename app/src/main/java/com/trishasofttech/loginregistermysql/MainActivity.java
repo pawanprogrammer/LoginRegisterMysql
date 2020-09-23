@@ -1,8 +1,10 @@
 package com.trishasofttech.loginregistermysql;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     Button btnSubmit;
     EditText etname,etemail,etmobile;
 
+    public static String nameArr [];
+    public static String emailArr [];
+    public static String mobileArr [];
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +44,19 @@ public class MainActivity extends AppCompatActivity {
         etemail = findViewById(R.id.etemail);
         etmobile = findViewById(R.id.etmobile);
         btnSubmit = findViewById(R.id.btnSubmit);
+
+        /*to receive the intent data*/
+        Intent data = getIntent();
+        /*display email id*/
+        etemail.setText(data.getStringExtra("emailkey"));
+
         recyclerView_userinfo = findViewById(R.id.recyclerview_userinfo);
+        /*to set the fixed recyclerview size*/
+        recyclerView_userinfo.setHasFixedSize(true);
+        /*recyclerview design in linear form*/
+        recyclerView_userinfo.setLayoutManager(new LinearLayoutManager(this));
+
+
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 rq.add(sr);
             }
         });
+
     }
 
     private void datafetchfromserver() {
@@ -87,8 +105,32 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             JSONObject jo = new JSONObject(response);
                             //etname.setText(jo.getJSONArray("Server_Data") +"");
+
                             JSONArray ja = jo.getJSONArray("Server_Data");
-                            
+                            nameArr = new String[ja.length()];
+                            emailArr = new String[ja.length()];
+                            mobileArr = new String[ja.length()];
+                            /*iteration for fetching all data from array*/
+                            /*to get all entry/data from api*/
+                            for (int i=0; i<ja.length(); i++)
+                            {
+                                JSONObject jo1 = ja.getJSONObject(i);
+                                nameArr[i] = jo1.getString("name");
+                                emailArr[i] = jo1.getString("email");
+                                mobileArr[i] = jo1.getString("mobile");
+                            }
+
+                            /*to call the Adapter for recyclerview after click on the button*/
+                            MyAdapter myAdapter  = new MyAdapter(MainActivity.this, nameArr, emailArr, mobileArr);
+                            /*to attach the adapter with recyclerview*/
+                            recyclerView_userinfo.setAdapter(myAdapter);
+
+                            /*for single entry*/
+                            /*JSONObject jo1 = ja.getJSONObject(5);
+                            String name = jo1.getString("name");
+                            String email = jo1.getString("email");
+                            String mobile = jo1.getString("mobile");
+                            btnSubmit.setText(name + "\n"+ email +"\n"+ mobile);*/
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
