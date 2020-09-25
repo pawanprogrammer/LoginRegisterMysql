@@ -3,6 +3,7 @@ package com.trishasofttech.loginregistermysql;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,10 +23,16 @@ import java.util.Map;
 public class LoginActivity extends AppCompatActivity {
 Button btn_login, btn_createaccount;
 EditText etemail, etmobile;
+
+SharedPreferences sp;
+SharedPreferences.Editor ed;
+boolean b;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        sp = getSharedPreferences("pawan", 0);
+        ed = sp.edit();
         btn_login = findViewById(R.id.btn_login);
         btn_createaccount = findViewById(R.id.btn_createaccount);
         etemail = findViewById(R.id.etemail);
@@ -94,6 +101,10 @@ EditText etemail, etmobile;
                             /*to jump into MainActivity*/
                             Intent main = new Intent(LoginActivity.this, MainActivity.class);
                             main.putExtra("emailkey", etemail.getText().toString());
+
+                            /*to change the boolean value of sharedPreferences as true*/
+                            ed.putBoolean("id", true);
+                            ed.commit();
                             startActivity(main);
                             finish();
                         }
@@ -122,5 +133,17 @@ EditText etemail, etmobile;
         RequestQueue rq = Volley.newRequestQueue(LoginActivity.this);
         rq.add(sr);
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        sp = getSharedPreferences("pawan", 0);
+        if (sp.getBoolean("id", false)== true)
+        {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 }
